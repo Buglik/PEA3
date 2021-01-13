@@ -4,6 +4,7 @@
 #include "menu.h"
 #include "dataManagment.h"
 #include "Czas.h"
+#include "Genetic.h"
 
 
 int main()
@@ -13,8 +14,8 @@ int main()
     int matrixSize = 0, menu, popMenu = 0;
     int** matrix = NULL;
     int stopTime = 0;
-    double mutPercMenu = 0;
-    double xPercenu = 0;
+    double mutPercMenu = 0.8;
+    double xPercenu = 0.01;
     int xMenu = 0;
     int mMenu = 0;
     string file;
@@ -68,6 +69,8 @@ int main()
             break;
         }
         case 8: {
+            Genetic gen;
+            gen.setMatrix(matrix, matrixSize);
             cout << "START" << endl;
             
 

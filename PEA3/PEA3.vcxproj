@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClCompile Include="Czas.cpp" />
     <ClCompile Include="dataManagment.cpp" />
+    <ClCompile Include="Genetic.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="PEA3.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Czas.h" />
     <ClInclude Include="dataManagment.h" />
+    <ClInclude Include="Genetic.h" />
     <ClInclude Include="menu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

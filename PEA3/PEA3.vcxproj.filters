@@ -27,6 +27,9 @@
     <ClCompile Include="Czas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Genetic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Czas.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Genetic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
