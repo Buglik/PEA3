@@ -72,6 +72,8 @@ int main()
             Genetic gen;
             gen.setMatrix(matrix, matrixSize);
             cout << "START" << endl;
+            gen.setGenetic(stopTime, popMenu, xPercenu, mutPercMenu);
+            gen.startGenetic();
             
 
             break;

@@ -52,7 +52,7 @@ void Genetic::startGenetic()
 	vector <double> fitness(popSize, 0);
 
 	timerGen.czasStart();
-	initPopulation(population);	
+	initPopulation(population);	//TODO
 
 	while (ifContinue())
 	{
@@ -63,7 +63,7 @@ void Genetic::startGenetic()
 			parent1 = tournamentSelection(population);
 			parent2 = tournamentSelection(population);
 
-			crossOver(parent1, parent2, child1, child2);
+			crossOver(parent1, parent2, child1, child2);	// TODO 
 			mutation(child1);	//TODO
 			mutation(child2);	//TODO
 
