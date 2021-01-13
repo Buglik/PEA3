@@ -85,8 +85,117 @@ bool Genetic::ifContinue()
 
 void Genetic::crossOver(vector <unsigned> p1, vector <unsigned> p2, vector <unsigned> c1, vector <unsigned>c2)
 {
-
+	PMX(p1, p2, c1, c2);
 }
+
+void Genetic::PMX(vector <unsigned> parent1, vector <unsigned> parent2, vector <unsigned>& offspring1, vector <unsigned>& offspring2) {
+	random_device randomSrc;
+	default_random_engine randomGen(randomSrc());
+	uniform_int_distribution<> nodeRand(1, matrixSize - 1);
+
+	vector <unsigned> visitedOffspring1(matrixSize, 0);
+	vector <unsigned> visitedOffspring2(matrixSize, 0);
+
+	int a, b, balance = 0;
+
+	do {
+		a = nodeRand(randomGen);
+		b = nodeRand(randomGen);
+	} while (a == b || a > b);
+
+	//cout << "A: " << a << endl;
+	//cout << "B: " << b << endl;
+
+	// SKOPIOWANIE SEGMENTU Z RODZICA
+	for (int i = a; i < b; i++) {
+		offspring1.at(i) = parent2.at(i);
+		offspring2.at(i) = parent1.at(i);
+		visitedOffspring1.at(parent2.at(i)) = 1;
+		visitedOffspring2.at(parent1.at(i)) = 1;
+	}
+
+	// Przepisanie "czego sie da" przed sekwencja
+	for (int i = a - 1; i >= 0; i--) {
+		if (visitedOffspring1.at(parent1.at(i)) != 1) {
+			offspring1.at(i) = parent1.at(i);
+			if (parent1.at(i) != 0)
+				visitedOffspring1.at(parent1.at(i)) = 1;
+		}
+		else
+			offspring1.at(i) = 2021;
+
+		if (visitedOffspring2.at(parent2.at(i)) != 1) {
+			offspring2.at(i) = parent2.at(i);
+			if (parent2.at(i) != 0)
+				visitedOffspring2.at(parent2.at(i)) = 1;
+		}
+		else
+			offspring2.at(i) = 2021;
+	}
+
+	// Przepisanie "czego sie da" po sekwencja
+	for (int i = b; i <= matrixSize; i++) {
+		if (visitedOffspring1.at(parent1.at(i)) != 1) {
+			offspring1.at(i) = parent1.at(i);
+			visitedOffspring1.at(parent1.at(i)) = 1;
+		}
+		else
+			offspring1.at(i) = 2021;
+
+		if (visitedOffspring2.at(parent2.at(i)) != 1) {
+			offspring2.at(i) = parent2.at(i);
+			visitedOffspring2.at(parent2.at(i)) = 1;
+		}
+		else
+			offspring2.at(i) = 2021;
+	}
+
+	int help = 0;
+	bool cont = true;
+
+	for (int i = 0; i < matrixSize; i++) {
+		if (offspring1.at(i) == 2021) {
+			help = i;
+			while (cont == true) {
+				for (int j = 0; j < matrixSize; j++) {
+					if (parent2.at(j) == parent1.at(help)) {
+						if (visitedOffspring1.at(parent1.at(j)) != 1) {
+							offspring1.at(i) = parent1.at(j);
+							cont = false;
+							break;
+						}
+						else {
+							help = j;
+						}
+					}
+				}
+			}
+			cont = true;
+		}
+
+		if (offspring2.at(i) == 2021) {
+			help = i;
+			while (cont == true) {
+				for (int j = 0; j < matrixSize; j++) {
+					if (parent1.at(j) == parent2.at(help)) {
+						if (visitedOffspring2.at(parent2.at(j)) != 1) {
+							offspring2.at(i) = parent2.at(j);
+							cont = false;
+							break;
+						}
+						else {
+							help = j;
+						}
+					}
+				}
+			}
+			cont = true;
+		}
+	}
+	offspring1.at(matrixSize + 1) = calcCost(offspring1);
+	offspring2.at(matrixSize + 1) = calcCost(offspring2);
+}
+
 
 void Genetic::mutation(vector <unsigned> c)
 {
