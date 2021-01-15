@@ -15,11 +15,12 @@ void Genetic::setMatrix(int** tsp, int s) {
 	matrixSize = s;
 }
 
-void Genetic::setGenetic(int time, int pop, double cross, double mute){
+void Genetic::setGenetic(int time, int pop, double cross, double mute, int crossss){
 	timeLimit = time;
 	popSize = pop;
 	crossP = cross;
 	muteP = mute;
+	crossType = crossss;
 }
 
 int Genetic::calcCost(vector<unsigned> v)
@@ -45,47 +46,197 @@ void Genetic::showRoute(vector <unsigned> v)
 }
 
 void Genetic::startGenetic()
-{
+{	
+	cout << "START" << endl;
+	valueForTime.clear();
 	vector < vector <unsigned>> population;
 	vector <unsigned> parent1, parent2;
-	vector <unsigned> child1(matrixSize + 2, 0), child2(matrixSize + 2, 0);
+	vector <unsigned> child1(matrixSize + 3, 0), child2(matrixSize + 3, 0);
 	vector <double> fitness(popSize, 0);
+	Czas timerFive;
 
 	timerGen.czasStart();
+	timerFive.czasStart();
+	timerSOL.czasStart();
+	generation = 0;
 	initPopulation(population);	
-
-	while (ifContinue())
+	sortVector(population);
+	valueForTime.push_back(population.at(0).at(matrixSize + 1));
+	best = population.at(0);
+	
+	do
 	{
 		vector<vector<unsigned>> newPopulation;
-
-		while (newPopulation.size() < popSize)
+		vector<vector<unsigned>> availableParents = population;
+		while (newPopulation.size() < popSize * crossP)
 		{
-			parent1 = tournamentSelection(population);
-			parent2 = tournamentSelection(population);
+			
+			parent1 = tournamentSelection(availableParents);
+			parent2 = tournamentSelection(availableParents);
 
 			crossOver(parent1, parent2, child1, child2);
-			mutation(child1);	//TODO
-			mutation(child2);	//TODO
+			mutation(child1);	
+			mutation(child2);	
 
 			newPopulation.push_back(child1);
 			newPopulation.push_back(child2);
 		}
-		//TODO polaczenie starej i nowej populacji i wpisanie do populacji
+		sortVector(newPopulation);
+		nextPopulation(population, newPopulation);
+		sortVector(population);
+		generation++;
+
+		//pomiar do sprawozdania (blad w czasie)	// TODO zmienic na mniejsze czasy trzeba bedzie napewno
+		timerFive.czasStop();
+		if (timerFive.czasWykonaniaMili() >= 500)
+		{
+			valueForTime.push_back(population.at(0).at(matrixSize + 1));
+			timerFive.czasStart();
+		}
+		//zapisanie czasu znalezienia najlepszego
+		if (population.at(0).at(matrixSize + 1) < best.at(matrixSize + 1))
+		{
+			best = population.at(0);
+			timerSOL.czasStop();
+		}
+
+	} while (ifContinue(timerGen));
+
+	//best = population.at(0);
+	cout << "KONIEC" << endl;
+	cout << "Najlepsza wartosc: " << best.at(matrixSize + 1) << endl;
+	cout << "Pochodzi z: " << best.at(matrixSize + 2) << " generacji" << endl;
+	cout << "Znaleziona zostala w: " << timerSOL.czasWykonaniaMili() << " ms." << endl;
+	cout << "Przeszlo przez " << generation << " generacji" << endl;
+
+}
+
+void Genetic::nextPopulation(vector <vector<unsigned>>& population, vector <vector<unsigned>>newPop) {
+	/*for (int i = elitNumber; i < popSize; i++)
+		population.at(i) = newPop.at(i - elitNumber);*/
+	for (int i = 0;i < newPop.size();i++)
+	{
+		population.push_back(newPop.at(i));
+	}
+	sortVector(population);
+	population.resize(popSize);
+}
+
+
+void Genetic::sortVector(vector <vector<unsigned>>& vect) {
+	std::sort(vect.begin(), vect.end(),
+		[&](const std::vector<unsigned>& a, const std::vector<unsigned>& b) {
+			return a.at(matrixSize + 1) < b.at(matrixSize + 1);
+		});
+}
+
+bool Genetic::ifContinue(Czas timer)
+{
+	timer.czasStop();
+	if (timer.czasWykonaniaSek() >= timeLimit) return false;
+	else return true;
+}
+
+void Genetic::crossOver(vector <unsigned> p1, vector <unsigned> p2, vector <unsigned>& c1, vector <unsigned>& c2)
+{
+	if (crossType == 0) PMX(p1, p2, c1, c2);
+	else if (crossType == 1) OX(p1, p2, c1, c2);
+	else cout << "BlAD!!!!!!!!!!!!!!!!!!!!!";
+}
+
+void Genetic::OX(vector <unsigned> parent1, vector <unsigned> parent2, vector <unsigned>& offspring1, vector <unsigned>& offspring2) {
+	random_device randomSrc;
+	default_random_engine randomGen(randomSrc());
+	uniform_int_distribution<> nodeRand(1, matrixSize - 1);
+
+	vector <unsigned> visitedOffspring1(matrixSize, 0);
+	vector <unsigned> visitedOffspring2(matrixSize, 0);
+
+	int a, b, balance = 0;
+
+
+	do {
+		a = nodeRand(randomGen);
+		b = nodeRand(randomGen);
+	} while (a == b || a > b);
+
+	//cout << "A: " << a << endl;
+	//cout << "B: " << b << endl;
+
+
+	for (int i = a; i < b; i++) {
+		offspring1.at(i) = parent1.at(i);
+		offspring2.at(i) = parent2.at(i);
+		visitedOffspring1.at(parent1.at(i)) = 1;
+		visitedOffspring2.at(parent2.at(i)) = 1;
+	}
+
+
+	int omitted = 0, omitted2 = 0;
+
+	for (int i = b; i < matrixSize; i++) {
+		if (visitedOffspring1.at(parent2.at(i)) != 1) {
+			offspring1.at(i - omitted) = parent2.at(i);
+			visitedOffspring1.at(parent2.at(i)) = 1;
+		}
+		else
+			omitted++;
+
+		if (visitedOffspring2.at(parent1.at(i)) != 1) {
+			offspring2.at(i - omitted2) = parent1.at(i);
+			visitedOffspring2.at(parent1.at(i)) = 1;
+		}
+		else
+			omitted2++;
 
 	}
-	// TODO poka najlepszego z populacji ostatniej
-}
 
-bool Genetic::ifContinue()
-{
-	timerGen.czasStop();
-	if (timerGen.czasWykonaniaSek() < timeLimit) return true;
-	else return false;
-}
+	int helpOmitted1 = omitted, helpOmitted2 = omitted2;
 
-void Genetic::crossOver(vector <unsigned> p1, vector <unsigned> p2, vector <unsigned> c1, vector <unsigned>c2)
-{
-	PMX(p1, p2, c1, c2);
+	for (int i = 1; i < b; i++) {
+
+		if (visitedOffspring1.at(parent2.at(i)) != 1) {
+			if (omitted != 0) {
+				offspring1.at(matrixSize - omitted) = parent2.at(i);
+				visitedOffspring1.at(parent2.at(i)) = 1;
+				omitted--;
+			}
+
+			else {
+				offspring1.at(i - helpOmitted1) = parent2.at(i);
+				visitedOffspring1.at(parent2.at(i)) = 1;
+			}
+		}
+
+		else {
+			helpOmitted1++;
+		}
+
+
+		if (visitedOffspring2.at(parent1.at(i)) != 1) {
+			if (omitted2 != 0) {
+				offspring2.at(matrixSize - omitted2) = parent1.at(i);
+				visitedOffspring2.at(parent1.at(i)) = 1;
+				omitted2--;
+			}
+
+			else {
+				offspring2.at(i - helpOmitted2) = parent1.at(i);
+				visitedOffspring2.at(parent1.at(i)) = 1;
+			}
+		}
+
+		else {
+			helpOmitted2++;
+		}
+
+	}
+
+	offspring1.at(matrixSize + 1) = calcCost(offspring1);
+	offspring2.at(matrixSize + 1) = calcCost(offspring2);
+
+	offspring2.at(matrixSize + 2) = generation;
+	offspring1.at(matrixSize + 2) = generation;
 }
 
 void Genetic::PMX(vector <unsigned> parent1, vector <unsigned> parent2, vector <unsigned>& offspring1, vector <unsigned>& offspring2) {
@@ -194,12 +345,43 @@ void Genetic::PMX(vector <unsigned> parent1, vector <unsigned> parent2, vector <
 	}
 	offspring1.at(matrixSize + 1) = calcCost(offspring1);
 	offspring2.at(matrixSize + 1) = calcCost(offspring2);
+
+	offspring1.at(matrixSize + 2) = generation;
+	offspring2.at(matrixSize + 2) = generation;
 }
 
 
-void Genetic::mutation(vector <unsigned> c)
+void Genetic::mutation(vector <unsigned>& c)
 {
+	if (static_cast<float>(rand()) / RAND_MAX < muteP) {
+		int balance, i, j;
+		random_device randomSrc;
+		default_random_engine randomGen(randomSrc());
+		uniform_int_distribution<> nodeRand(1, matrixSize - 1);
 
+		do {
+			i = nodeRand(randomGen);
+			j = nodeRand(randomGen);
+		} while (i == j || j<i);
+		
+		balance = swapCalculator(i, j, c);
+		vSwap(i, j, c);
+		c.at(matrixSize + 1) += balance;
+	}
+}
+
+int Genetic::swapCalculator(int x, int y, vector <unsigned>currentRoute)
+{
+	int bal;
+	vector <unsigned> tempR = currentRoute;
+	vSwap(x, y, tempR);
+	bal = calcCost(tempR) - calcCost(currentRoute);
+	return bal;
+}
+void Genetic::vSwap(int a, int b, vector <unsigned>& currentRoute) {
+	unsigned buffer = currentRoute.at(b);
+	currentRoute.at(b) = currentRoute.at(a);
+	currentRoute.at(a) = buffer;
 }
 
 void Genetic::initPopulation(vector<vector <unsigned>>& population)
@@ -229,30 +411,49 @@ void Genetic::initPopulation(vector<vector <unsigned>>& population)
 		tempV.push_back(0);
 		cost = calcCost(tempV);
 		tempV.push_back(cost);
+		tempV.push_back(generation);
 
 		population.push_back(tempV);
 	}
 }
 
-vector <unsigned> Genetic::tournamentSelection(vector <vector <unsigned>> pop) {
+vector <unsigned> Genetic::tournamentSelection(vector <vector <unsigned>>& parents) {
 	vector <unsigned> best;
 	vector <unsigned> ind;
 
 	random_device randomSrc;
 	default_random_engine randomGen(randomSrc());
-	uniform_int_distribution<> indRand(0, pop.size() - 1);
+	uniform_int_distribution<> indRand(0, parents.size() - 1);
+	int helper,helper2;
 
-	int k = 2;
-	for (int i = 1; i <= k; i++) {
-		if (i == 1)
-			best = pop.at(indRand(randomGen));
+			helper = indRand(randomGen);
+			best = parents.at(helper);
 
-		else {
-			ind = pop.at(indRand(randomGen));
-			if (ind.at(matrixSize + 1) < best.at(matrixSize + 1))
+			helper2 = indRand(randomGen);
+			ind = parents.at(helper2);
+			if (ind.at(matrixSize + 1) < best.at(matrixSize + 1)) 
+			{
 				best = ind;
-		}
-	}
-
+				parents.erase(parents.begin() + helper2);
+			}
+			else
+			{
+				parents.erase(parents.begin() + helper);
+			}
 	return best;
+}
+
+void Genetic::saveToFileGenetic() {
+	ofstream plik;
+	plik.open("wynikiGenetic.csv", std::ios_base::app);
+	plik <<matrixSize <<";"<< timeLimit <<";"<< crossType << ";" << popSize << ";" << crossP << ";" << muteP << ";" << best.at(matrixSize + 1) << ";" << best.at(matrixSize + 2) << ";"<<generation<<";" << timerSOL.czasWykonaniaMili() << ";";
+	plik << " " << ";";
+
+	for (int i = 0; i < valueForTime.size(); i++) {
+		plik << valueForTime.at(i) << ";";
+	}
+	plik << " " << ";";
+
+	plik << endl;
+	plik.close();
 }

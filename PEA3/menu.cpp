@@ -61,8 +61,8 @@ double showXPercMenu() {
 int showXMenu() {
 	int ans;
 	cout << "==============================================================" << endl;
-	cout << "0.JEdno " << endl;
-	cout << "1.Drugie " << endl;
+	cout << "0.PMX " << endl;
+	cout << "1.OX " << endl;
 	cout << "==============================================================" << endl;
 	cin >> ans;
 	return ans;
@@ -73,6 +73,17 @@ int showMMenu() {
 	cout << "==============================================================" << endl;
 	cout << "0.JEdno " << endl;
 	cout << "1.Drugieee " << endl;
+	cout << "==============================================================" << endl;
+	cin >> ans;
+	return ans;
+}
+
+int showGenMenu() {
+	cout << "Ile razy wykonac program ?" << endl;
+	int ans;
+	cout << "==============================================================" << endl;
+	cout << "0. Raz " << endl;
+	cout << "1. 10 Razy " << endl;
 	cout << "==============================================================" << endl;
 	cin >> ans;
 	return ans;

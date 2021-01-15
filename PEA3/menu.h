@@ -12,4 +12,5 @@ double showMutPercMenu();
 double showXPercMenu();
 int showXMenu();
 int showMMenu();
+int showGenMenu();
 #endif#pragma once

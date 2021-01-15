@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include "menu.h"
@@ -11,11 +10,11 @@ int main()
 {
     srand(time(NULL));
     std::cout << "Hello World!\n";
-    int matrixSize = 0, menu, popMenu = 0;
+    int matrixSize = 0, menu, popMenu = 0, genMenu;
     int** matrix = NULL;
     int stopTime = 0;
-    double mutPercMenu = 0.8;
-    double xPercenu = 0.01;
+    double mutPercMenu = 0.01;
+    double xPercenu = 0.8;
     int xMenu = 0;
     int mMenu = 0;
     string file;
@@ -69,12 +68,63 @@ int main()
             break;
         }
         case 8: {
-            Genetic gen;
-            gen.setMatrix(matrix, matrixSize);
-            cout << "START" << endl;
-            gen.setGenetic(stopTime, popMenu, xPercenu, mutPercMenu);
-            gen.startGenetic();
-            
+            genMenu = showGenMenu();
+
+            if (genMenu == 0)
+            {
+                Genetic gen;
+                gen.setMatrix(matrix, matrixSize);
+
+                gen.setGenetic(stopTime, popMenu, xPercenu, mutPercMenu,xMenu);
+                gen.startGenetic();
+                gen.saveToFileGenetic();
+                break;
+            }
+            else if (genMenu == 1)
+            {
+                for (int i = 0;i < 10;i++)
+                {
+                    Genetic gen;
+                    gen.setMatrix(matrix, matrixSize);
+
+                    gen.setGenetic(stopTime, popMenu, xPercenu, mutPercMenu,xMenu);
+                    gen.startGenetic();
+                    gen.saveToFileGenetic();
+                }
+                break;
+
+            }
+            else
+                break;
+        }
+        case 9: {
+            //TESTORY
+            string files[] = { "rbg403.atsp", "ftv170.atsp", "ftv47.atsp" };
+            int times[] = { 180, 120, 60 };
+
+            for (int rodzajCrossa = 0;rodzajCrossa < 2;rodzajCrossa++)
+            {
+                for (int wielkoscEpoki; wielkoscEpoki < 3; wielkoscEpoki++)
+                {
+                    for (int i = 0;i < 3;i++)
+                    {
+                        for (int j = 0;j < 10;j++)
+                        {
+                            Genetic gen;
+
+                            matrix = getData(files[i]);
+                            matrixSize = matrix[0][0];
+                            matrix[0][0] = matrix[1][1];
+
+                            gen.setMatrix(matrix, matrixSize);
+
+                            gen.setGenetic(times[i], matrixSize * wielkoscEpoki, 0.8, 0.01, rodzajCrossa);
+                            gen.startGenetic();
+                            gen.saveToFileGenetic();
+                        }
+                    }
+                }
+            }
 
             break;
         }
