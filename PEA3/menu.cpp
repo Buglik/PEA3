@@ -12,7 +12,6 @@ int showMenu() {
 	cout << "4. Ustaw wspolczynnik mutacji" << endl;
 	cout << "5. Ustaw wspolczynnik krzyzowania" << endl;
 	cout << "6. Wybierz metode krzyzowania" << endl;
-	cout << "7. Wybierz metode mutacji" << endl;
 	cout << "8. Uruchom algorytm" << endl;
 	cout << "0. ZAKONCZ" << endl;
 	cout << "==============================================================" << endl;

@@ -63,8 +63,38 @@ int main()
             break;
         }
         case 7: {
-            cout << "Aktualny wybor: " << mMenu << endl;
-            mMenu = showMMenu();
+            /*cout << "Aktualny wybor: " << mMenu << endl;
+            mMenu = showMMenu();*/
+            //TESTORY
+            string files[] = { "rbg403.atsp", "ftv170.atsp", "ftv47.atsp" };
+            int times[] = { 180, 120, 60 };
+            double cross[] = { 0.5,0.7,0.9 };
+
+            for (int rodzajCrossa = 0;rodzajCrossa < 2;rodzajCrossa++)
+            {
+                for (int cr = 0; cr < 3; cr++)
+                {
+                    for (int i = 0;i < 3;i++)
+                    {
+                        for (int j = 0;j < 10;j++)
+                        {
+                            Genetic gen;
+
+                            matrix = getData(files[i]);
+                            matrixSize = matrix[0][0];
+                            matrix[0][0] = matrix[1][1];
+
+                            gen.setMatrix(matrix, matrixSize);
+
+                            gen.setGenetic(times[i], matrixSize * 3, cross[cr], 0.01, rodzajCrossa);
+                            gen.startGenetic();
+                            gen.saveToFileGenetic();
+                        }
+                    }
+                }
+            }
+
+
             break;
         }
         case 8: {
@@ -104,7 +134,8 @@ int main()
 
             for (int rodzajCrossa = 0;rodzajCrossa < 2;rodzajCrossa++)
             {
-                for (int wielkoscEpoki; wielkoscEpoki < 3; wielkoscEpoki++)
+                for (int wielkoscEpoki=1; wielkoscEpoki < 4; wielkoscEpoki++)
+
                 {
                     for (int i = 0;i < 3;i++)
                     {

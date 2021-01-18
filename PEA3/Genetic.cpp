@@ -52,15 +52,14 @@ void Genetic::startGenetic()
 	vector < vector <unsigned>> population;
 	vector <unsigned> parent1, parent2;
 	vector <unsigned> child1(matrixSize + 3, 0), child2(matrixSize + 3, 0);
-	vector <double> fitness(popSize, 0);
 	Czas timerFive;
 
 	timerGen.czasStart();
 	timerFive.czasStart();
 	timerSOL.czasStart();
 	generation = 0;
-	initPopulation(population);	
-	sortVector(population);
+	initPopulation(population);						//Utworzenie poczatkowej losowej generacji
+	sortVector(population);							//Sortowanie 
 	valueForTime.push_back(population.at(0).at(matrixSize + 1));
 	best = population.at(0);
 	
@@ -70,23 +69,23 @@ void Genetic::startGenetic()
 		vector<vector<unsigned>> availableParents = population;
 		while (newPopulation.size() < popSize * crossP)
 		{
-			
+			//Selekcja rodzicow
 			parent1 = tournamentSelection(availableParents);
 			parent2 = tournamentSelection(availableParents);
 
-			crossOver(parent1, parent2, child1, child2);
-			mutation(child1);	
+			crossOver(parent1, parent2, child1, child2);	//krzyzowanie
+			mutation(child1);	//mutacja (opcjonalna)
 			mutation(child2);	
 
-			newPopulation.push_back(child1);
+			newPopulation.push_back(child1);	//dodanie do nowej populacji
 			newPopulation.push_back(child2);
 		}
-		sortVector(newPopulation);
+		sortVector(newPopulation);				//posortownaie jej (do testow)
 		nextPopulation(population, newPopulation);
 		sortVector(population);
 		generation++;
 
-		//pomiar do sprawozdania (blad w czasie)	// TODO zmienic na mniejsze czasy trzeba bedzie napewno
+		//pomiar do sprawozdania (blad w czasie)
 		timerFive.czasStop();
 		if (timerFive.czasWykonaniaMili() >= 500)
 		{
@@ -116,10 +115,10 @@ void Genetic::nextPopulation(vector <vector<unsigned>>& population, vector <vect
 		population.at(i) = newPop.at(i - elitNumber);*/
 	for (int i = 0;i < newPop.size();i++)
 	{
-		population.push_back(newPop.at(i));
+		population.push_back(newPop.at(i));				//Poalczenie nowych potomków i starych potomkow
 	}
-	sortVector(population);
-	population.resize(popSize);
+	sortVector(population);								// posegregowanie ich wzgledem wartosci sciezki
+	population.resize(popSize);							// odciecie slabszych osobnikow do rozmiar populacji
 }
 
 
@@ -163,7 +162,7 @@ void Genetic::OX(vector <unsigned> parent1, vector <unsigned> parent2, vector <u
 	//cout << "A: " << a << endl;
 	//cout << "B: " << b << endl;
 
-
+	// Przepisanie sekcji dopasowania
 	for (int i = a; i < b; i++) {
 		offspring1.at(i) = parent1.at(i);
 		offspring2.at(i) = parent2.at(i);
@@ -174,6 +173,8 @@ void Genetic::OX(vector <unsigned> parent1, vector <unsigned> parent2, vector <u
 
 	int omitted = 0, omitted2 = 0;
 
+
+	//wpisanie od drugiego przeciecie do konca (przed zapetleniem)
 	for (int i = b; i < matrixSize; i++) {
 		if (visitedOffspring1.at(parent2.at(i)) != 1) {
 			offspring1.at(i - omitted) = parent2.at(i);
@@ -193,6 +194,8 @@ void Genetic::OX(vector <unsigned> parent1, vector <unsigned> parent2, vector <u
 
 	int helpOmitted1 = omitted, helpOmitted2 = omitted2;
 
+
+	//wpisanie od poczatku do pierwszego przeciecia (po zapetleniu)
 	for (int i = 1; i < b; i++) {
 
 		if (visitedOffspring1.at(parent2.at(i)) != 1) {
