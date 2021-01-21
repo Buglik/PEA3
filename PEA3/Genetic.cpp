@@ -82,7 +82,6 @@ void Genetic::startGenetic()
 		}
 		sortVector(newPopulation);				//posortownaie jej (do testow)
 		nextPopulation(population, newPopulation);
-		sortVector(population);
 		generation++;
 
 		//pomiar do sprawozdania (blad w czasie)
@@ -356,7 +355,7 @@ void Genetic::PMX(vector <unsigned> parent1, vector <unsigned> parent2, vector <
 
 void Genetic::mutation(vector <unsigned>& c)
 {
-	if (static_cast<float>(rand()) / RAND_MAX < muteP) {
+	if (static_cast<float>(rand()) / RAND_MAX < muteP) {		//mutacja opcjonalna
 		int balance, i, j;
 		random_device randomSrc;
 		default_random_engine randomGen(randomSrc());
@@ -429,12 +428,12 @@ vector <unsigned> Genetic::tournamentSelection(vector <vector <unsigned>>& paren
 	uniform_int_distribution<> indRand(0, parents.size() - 1);
 	int helper,helper2;
 
-			helper = indRand(randomGen);
+			helper = indRand(randomGen);		//losuje pierwszego rodzica
 			best = parents.at(helper);
 
-			helper2 = indRand(randomGen);
+			helper2 = indRand(randomGen);		//losuje drugiego
 			ind = parents.at(helper2);
-			if (ind.at(matrixSize + 1) < best.at(matrixSize + 1)) 
+			if (ind.at(matrixSize + 1) < best.at(matrixSize + 1))	//i ich porownuje
 			{
 				best = ind;
 				parents.erase(parents.begin() + helper2);
